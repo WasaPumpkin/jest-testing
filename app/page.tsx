@@ -35,46 +35,118 @@
 // // Copy
 // // setCount((prevCount) => prevCount + 1);
 
-"use client"; // Ensure this is at the top
+//page.tsx
+// "use client"; // Ensure this is at the top
 
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+
+// const InputForm: React.FC = () => {
+//   const [inputValue, setInputValue] = useState<string>('');
+//   const [submittedValue, setSubmittedValue] = useState<string | null>(null);
+
+//   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     setInputValue(event.target.value);
+//   };
+
+//   const handleSubmit = (event: React.FormEvent) => {
+//     event.preventDefault();
+//     // Ignoring side effects: What if inputValue is an empty string?
+//     if (inputValue) {
+//       setSubmittedValue(inputValue);
+//       setInputValue(''); // Clear input after submission
+//     }
+//     // Missing edge case: What happens if inputValue is whitespace?
+//   };
+
+//   return (
+//     <div>
+//       <form onSubmit={handleSubmit}>
+//         <input
+//           type="text"
+//           value={inputValue}
+//           onChange={handleInputChange}
+//           aria-label="Input Field" // Lacks sufficient accessibility attributes
+//           aria-required="true" // Missing required attribute for better accessibility
+//         />
+//         <button type="submit">Submit</button>
+//       </form>
+//       {submittedValue && <p>Submitted Value: {submittedValue}</p>}
+//     </div>
+//   );
+// };
+
+// export default InputForm;
+
+
+"use client";
+
+import React, { useState, useCallback } from 'react';
 
 const InputForm: React.FC = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [submittedValue, setSubmittedValue] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
-  };
+    setError(null); // Clear any previous error when the user types
+  }, []);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Ignoring side effects: What if inputValue is an empty string?
-    if (inputValue) {
-      setSubmittedValue(inputValue);
-      setInputValue(''); // Clear input after submission
+    const trimmedValue = inputValue.trim();
+
+    if (!trimmedValue) {
+      setError('Input cannot be empty or just whitespace.');
+      return;
     }
-    // Missing edge case: What happens if inputValue is whitespace?
-  };
+
+    setSubmittedValue(trimmedValue);
+    setInputValue(''); // Clear input after submission
+  }, [inputValue]);
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        <label htmlFor="input-field">Enter a value:</label>
         <input
+          id="input-field"
           type="text"
           value={inputValue}
           onChange={handleInputChange}
-          aria-label="Input Field" // Lacks sufficient accessibility attributes
-          aria-required="true" // Missing required attribute for better accessibility
+          aria-label="Input Field"
+          aria-describedby={error ? 'error-message' : undefined}
+          placeholder="Enter a value"
+          required
         />
         <button type="submit">Submit</button>
       </form>
-      {submittedValue && <p>Submitted Value: {submittedValue}</p>}
+
+      {error && (
+        <p id="error-message" className="error-message">
+          {error}
+        </p>
+      )}
+      {submittedValue && (
+        <p className="success-message">Submitted Value: {submittedValue}</p>
+      )}
     </div>
   );
 };
 
 export default InputForm;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
